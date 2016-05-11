@@ -88,7 +88,7 @@ RETURN VALUE
 
 CONFORMING TO
 
-	POSIXeg v1.
+	POSIXeg v1. Libruncmd vr 1.0.0.
 
 NOTES
 	runcmd() interpret every blank-separated word of 'command' as an
@@ -167,3 +167,5 @@ COPYRIGHT
 	You may redistribute this file with your own project either 'as is' or
 	as a derivative work. If you do so, please retain this copyright note
 	and add some annotation explicitly stating your modifications. 
+
+POEIXeg     	     		2015-05-11                               runcmd
