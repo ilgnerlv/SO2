@@ -67,12 +67,13 @@ DESCRIPTION
 	As for that, the macro IS_EXECKOK() may be used for disambiguation.  
 	
 	* If a process terminates abnormally, then its exit status has no
-	 meaning. In this case, EXITSTATUS() returns zero.
+	 meaning. In this case, EXITSTATUS() return value is unspecified.
 
 	* in nonblocking mode, the subprocess termination and exit status are 
 	  not known by the time runcmd() returns.  In this case IS_NORMTERM(),
-	  EXITSTATUS() and EXECOK(), all them return zero and have no meaning.
-	  The caller process may use IS_NONBLOCK() for disambiguation. 
+	  EXITSTATUS() and EXECOK(), all them have no meaning and their return
+	  value is unspecified. The caller process should use IS_NONBLOCK() for 
+	  disambiguation. 
 
 	Subprocess's standard input, output and error may be redirected. To that
 	end the caller must pass a pointer to an array of tree integers as the
@@ -88,7 +89,7 @@ RETURN VALUE
 
 CONFORMING TO
 
-	POSIXeg v1. Libruncmd vr 1.0.0.
+	POSIXeg v1. Libruncmd vr 2.0.0.
 
 NOTES
 	runcmd() interpret every blank-separated word of 'command' as an
@@ -120,6 +121,16 @@ NOTES
 	not handled specially).
 
 	Parameter 'command' is unchanged after execution.	
+
+        Version compatibility:
+
+	Former version of libruncmd may differ in both the API and semantics.
+	In libruncmd vr 1, EXITSTATUS() returns zero after a blocking call to 
+	runcmd() if the subprocess terminated abnormally; in the current version
+	the rule is relaxed and the value let unspecified. Also, in libruncmd
+	vr 1, after a nonblock call to runcmd() IS_NORMTERM(), IS_EXECOK() 
+	return true and EXITSTATUS() return zero. In current version these
+	values are left unspecified.
 
 EXAMPLE
 
