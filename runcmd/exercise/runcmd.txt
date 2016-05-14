@@ -69,7 +69,7 @@ DESCRIPTION
 	* If a process terminates abnormally, then its exit status has no
 	 meaning. In this case, EXITSTATUS() return value is unspecified.
 
-	* in nonblocking mode, the subprocess termination and exit status are 
+	* In nonblocking mode, the subprocess termination and exit status are 
 	  not known by the time runcmd() returns.  In this case IS_NORMTERM(),
 	  EXITSTATUS() and EXECOK(), all them have no meaning and their return
 	  value is unspecified. The caller process should use IS_NONBLOCK() for 
@@ -81,6 +81,20 @@ DESCRIPTION
 	previously opened files. Files are neither closed nor flushed by the
 	function.  runcmd() does not check if write/write operations are
 	correctly performed.
+
+	If the caller process stores the address of a function to the global
+	variable runcmd_onexit, this function is asynchronous evoked upon
+	the termination of a subprocess executed in nonblocking mode. To that
+	end, runcmd set runcmd_onexit as handler for signal SIGCHLD. After
+	a signal of this kind is received by the process, the signal handling
+	configuration is restored to the state it was in by the time runcmd()
+	was invoked.  Therefore, if the user changes any signal handling
+	configuration between the runcmd() invocation and the signal delivering,
+	those changes are lost (user may opt for doing all the work outside
+	the function if further granularity is desired). The library provides
+	also a global variable runcmd_result which will contain the information
+	of the subprocess execution upon its termination --- it may be inspect
+	with the same macros used to check the second argument of runcmd().
 
 
 RETURN VALUE
@@ -109,12 +123,6 @@ NOTES
 	for files or pipes can be achieved by means of built-in functionality
 	accessible with 'io' parameter.
 
-
-	If the caller process stores the address of a function to the global
-	variable runcmd_onexit, this function is registered as a handler
-	for the signal SIGCHLD. If this signal is blocked or ignored by
-	the caller process, runcmd_onexit() will not be invoked.
-
 	runcmd() does not perform any terminal control policy. Both the caller
 	process and the subprocess are executed in the same session so that
 	conflict in accessing the terminal be arise (SIGTTIN and SIGTTOUT are
@@ -130,7 +138,13 @@ NOTES
 	the rule is relaxed and the value let unspecified. Also, in libruncmd
 	vr 1, after a nonblock call to runcmd() IS_NORMTERM(), IS_EXECOK() 
 	return true and EXITSTATUS() return zero. In current version these
-	values are left unspecified.
+	values are left unspecified.  
+
+	Former versions of libruncmd specified that if the caller had blocked
+	or ignored SIGCHLD before calling runcmd, the runcmd_onexit handler
+	would not be called. This rule was removed from the current verson;
+	the handler is called. Libruncmd vr 2, however adds a requirement
+	by which signal configuration is restored after SIGCHLD is catch.
 
 EXAMPLE
 
